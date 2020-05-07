@@ -1,3 +1,7 @@
+% Pankaj Gupta <pankajgupta@alumni.ubc.ca>
+% University of British Columbia
+% Created: April 2020
+
 %% Global thresholding for nuclear segmentation. Comment this upto k-means method below to use k-means segmentation
 im1 = loadImages('Data/Cell 14_YAC128_G/', '*.tif');
 im2 = loadImages('Data/Cell 14_YAC128_R/', '*.tif');
