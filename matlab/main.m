@@ -3,8 +3,8 @@
 % Created: April 2020
 
 %% Global thresholding for nuclear segmentation. Comment this upto k-means method below to use k-means segmentation
-im1 = loadImages('Data/Cell 14_YAC128_G/', '*.tif');
-im2 = loadImages('Data/Cell 14_YAC128_R/', '*.tif');
+im1 = loadImages('../Data/Cell 17_WT_G/', '*.tif');
+im2 = loadImages('../Data/Cell 17_WT_R/', '*.tif');
 ts = min(length(im1),length(im2));
 im1 = im1(:,:,1:ts);
 im2 = im2(:,:,1:ts);
