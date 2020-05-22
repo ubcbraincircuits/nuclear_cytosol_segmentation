@@ -1,3 +1,6 @@
+% Pankaj Gupta <pankajgupta@alumni.ubc.ca>
+% University of British Columbia
+% Created: April 2020
 function Seq = loadImages(imgPath, imgType)
     %imgPath = 'path/to/images/folder/';
     %imgType = '*.png'; % change based on image type

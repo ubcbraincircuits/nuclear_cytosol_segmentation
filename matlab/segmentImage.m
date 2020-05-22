@@ -1,3 +1,6 @@
+% Pankaj Gupta <pankajgupta@alumni.ubc.ca>
+% University of British Columbia
+% Created: April 2020
 function [BW,maskedImage] = segmentImage(X)
 %segmentImage Segment image using auto-generated code from imageSegmenter app
 %  [BW,MASKEDIMAGE] = segmentImage(X) segments image X using auto-generated

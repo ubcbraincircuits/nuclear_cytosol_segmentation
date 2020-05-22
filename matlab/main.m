@@ -1,7 +1,13 @@
-%% Global thresholding for nuclear segmentation. Comment this upto k-means method below to use k-means segmentation
-im1 = loadImages('Data/Cell 14_YAC128_G/', '*.tif');
-im2 = loadImages('Data/Cell 14_YAC128_R/', '*.tif');
+% Pankaj Gupta <pankajgupta@alumni.ubc.ca>
+% University of British Columbia
+% Created: April 2020
 
+%% Global thresholding for nuclear segmentation. Comment this upto k-means method below to use k-means segmentation
+im1 = loadImages('../Data/Cell 17_WT_G/', '*.tif');
+im2 = loadImages('../Data/Cell 17_WT_R/', '*.tif');
+ts = min(length(im1),length(im2));
+im1 = im1(:,:,1:ts);
+im2 = im2(:,:,1:ts);
 fs = 10;
 t = (0:length(im1)-1)/fs;
 
@@ -76,16 +82,17 @@ mean2 = squeeze(mean(im2_dff,[1 2]));
 % legend;
 
 %% find peaks
-[PkAmp1, PkTime1, W1, P1] = findpeaks(mean1,t, 'MinPeakProminence',0.01,'MinPeakDistance',2);
-[PkAmp2, PkTime2, W2, P2] = findpeaks(mean2,t, 'MinPeakProminence',0.01,'MinPeakDistance',2);
+[PkAmp1, PkTime1, W1, P1] = findpeaks(mean1,t, 'MinPeakProminence',0.002,'MinPeakDistance',2);
+[PkAmp2, PkTime2, W2, P2] = findpeaks(mean2,t, 'MinPeakProminence',0.002,'MinPeakDistance',2);
 % findpeaks(mean1,t,'MinPeakProminence',0.01,'MinPeakDistance',0.5,'Annotate','extents')
 
 %% time match the peaks
 % we are assuming matching peaks would be max. 2 sec. apart. Anything more
 % is not a match
-m = ismembertol(PkTime1, PkTime2, 2/max(abs([PkTime1(:);PkTime2(:)])));
-PkAmp1 = PkAmp1(m); PkTime1 = PkTime1(m); W1 = W1(m); P1 = P1(m);
-PkAmp2 = PkAmp2(m); PkTime2 = PkTime2(m); W2 = W2(m); P2 = P2(m);
+m1 = ismembertol(PkTime1, PkTime2, 2/max(abs([PkTime1(:);PkTime2(:)])));
+m2 = ismembertol(PkTime2, PkTime1, 2/max(abs([PkTime1(:);PkTime2(:)])));
+PkAmp1 = PkAmp1(m1); PkTime1 = PkTime1(m1); W1 = W1(m1); P1 = P1(m1);
+PkAmp2 = PkAmp2(m2); PkTime2 = PkTime2(m2); W2 = W2(m2); P2 = P2(m2);
 
 %% ratios
 RtPkAmp = PkAmp1./PkAmp2; DfPkTime = PkTime1-PkTime2; RtW = W1./W2; RtP = P1./P2;
@@ -102,9 +109,9 @@ legend;
 
 %% plot ratios and scatter plot
 figure;
-subplot(2,3,1); scatter(PkTime1, PkTime2); xlabel('Peak time GCaMP'); ylabel('Peak time RCaMP'); title('Peak times'); axis equal;
-subplot(2,3,2); scatter(W1, W2); xlabel('Peak widths GCaMP'); ylabel('Peak widths RCaMP'); title('Peak widths');  axis equal;
-subplot(2,3,3); scatter(P1, P2); xlabel('Peak prominence GCaMP'); ylabel('Peak prominence RCaMP'); title('Peak prominence');  axis equal;
+subplot(2,3,1); scatter(PkTime2, PkTime1); ylabel('Peak time GCaMP'); xlabel('Peak time RCaMP'); title('Peak times'); axis equal;
+subplot(2,3,2); scatter(W2, W1); ylabel('Peak widths GCaMP'); xlabel('Peak widths RCaMP'); title('Peak widths');  axis equal;
+subplot(2,3,3); scatter(P2, P1); ylabel('Peak prominence GCaMP'); xlabel('Peak prominence RCaMP'); title('Peak prominence');  axis equal;
 subplot(2,3,4); plot(DfPkTime); xlabel('Peak #'); ylabel('Difference of peak time(GCaMP-RCaMP)'); title('Peak times');  axis equal;
 subplot(2,3,5); plot(RtW); xlabel('Peak #'); ylabel('Ratio peak widths(GCaMP/RCaMP)'); title('Peak widths');
 subplot(2,3,6); plot(RtP); xlabel('Peak #'); ylabel('Ratio peak prominence(GCaMP/RCaMP)'); title('Peak prominence');
