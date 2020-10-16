@@ -346,11 +346,15 @@ class cell():
 
             if cell_id.find("_S") is not -1:
                 if drug_app is not np.nan:
-                    iono_min[0] = np.min(rawG[drug_app-200:drug_app+1000]>0)
-                    iono_min[1] = np.min(rawR[drug_app-200:drug_app+1000]>0)
+                    rawG_nan = rawG.copy()
+                    rawG_nan[rawG_nan ==0]=np.nan
+                    rawR_nan = rawR.copy()
+                    rawR_nan[rawR_nan ==0]=np.nan
+                    iono_min[0] = np.nanmin(rawG_nan[:drug_app])
+                    iono_min[1] = np.nanmin(rawR_nan[:drug_app])
 
-                    iono_max[0] = np.max(rawG[drug_app-200:drug_app+1000])
-                    iono_max[1] = np.max(rawR[drug_app-200:drug_app+1000])
+                    iono_max[0] = np.max(rawG[drug_app:])
+                    iono_max[1] = np.max(rawR[drug_app:])
 
                     iono_diff[0] = iono_max[0]-iono_min[0]
                     iono_diff[1] = iono_max[1]-iono_min[1]
@@ -397,8 +401,10 @@ class cell():
                                         'Experiment Length (s)': gcamp.shape[0]/10,
                                         'Drug Application': drug_app/10,
                                         'Iono GCaMP Max': iono_max[0],
+                                        'Iono GCaMP Min': iono_min[0],
                                         'Iono GCaMP Dif': iono_diff[0],
                                         'Iono RCaMP Max': iono_max[1],
+                                        'Iono RCaMP Min': iono_min[1],
                                         'Iono RCaMP Dif': iono_diff[1],
 
 
