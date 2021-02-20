@@ -304,15 +304,16 @@ class cell():
 
             peaks, _ = signal.find_peaks(trace, width=7, rel_height=.5, prominence=(threshold))
 
-            width = signal.peak_widths(trace, peaks, rel_height=.1)
+            width = signal.peak_widths(trace, peaks, rel_height=.5)
+            width10 = signal.peak_widths(trace, peaks, rel_height=.9)
 
-            return peaks, width[0], threshold, z
+            return peaks, width[0], width10[0], threshold, z
 
         def signal_analysis(self, cell_id, gcamp, rcamp, rawG, rawR, HZ, power, fc, std_thresh):
             str_index = int(cell_id.find("Iono_"))
             threshold_cuttoff = (int(cell_id[(str_index+5):(str_index+8)])*HZ)
-            gcamp_peaks, gcamp_widths, gThreshold, gLowPass = peakDetect(gcamp, threshold_cuttoff, power, fc, std_thresh)
-            rcamp_peaks, rcamp_widths, rThreshold, rLowPass = peakDetect(rcamp, threshold_cuttoff, power, fc, std_thresh)
+            gcamp_peaks, gcamp_widths, gcamp_widths10, gThreshold, gLowPass = peakDetect(gcamp, threshold_cuttoff, power, fc, std_thresh)
+            rcamp_peaks, rcamp_widths, rcamp_widths10, rThreshold, rLowPass = peakDetect(rcamp, threshold_cuttoff, power, fc, std_thresh)
 
 
             drug_app = np.nan
@@ -340,8 +341,9 @@ class cell():
 
                     gcamp_peaks = gcamp_peaks[:cutoffG]
                     gcamp_widths = gcamp_widths[:cutoffG]
+                    gcamp_widths10 = gcamp_widths10[:cutoffG]
                     rcamp_peaks = rcamp_peaks[:cutoffR]
-                    rcamp_widths = rcamp_widths[:cutoffR]
+                    rcamp_widths10 = rcamp_widths10[:cutoffR]
 
 
             if cell_id.find("_S") is not -1:
@@ -449,7 +451,10 @@ class cell():
                                         'RCaMP Area':r_area,
                                         'Promicence Ratio (G/R)':(gcamp[event[1]]/rcamp[event[0]]),
                                         'Peak Time Diff (G-R)':((event[0]-event[1])*100),
-                                        'Start Difference (G-R)': (event[0]-gcamp_widths[gindex] - event[1]-rcamp_widths[rindex])[0]*100
+                                        'Start Difference (G-R)': (event[0]-gcamp_widths[gindex] - event[1]-rcamp_widths[rindex])[0]*100,
+                                        'Start Difference 10% Max(G-R)': (event[0]-gcamp_widths10[gindex] - event[1]-rcamp_widths10[rindex])[0]*100
+
+
                                                                          }
                 shared_peak_data = shared_peak_data.append(peak_stats, ignore_index=True)
 
