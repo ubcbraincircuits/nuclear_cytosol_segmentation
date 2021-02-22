@@ -307,13 +307,13 @@ class cell():
             width = signal.peak_widths(trace, peaks, rel_height=.5)
             width10 = signal.peak_widths(trace, peaks, rel_height=.9)
 
-            return peaks, width[0], width10[0], threshold, z
+            return peaks, width[0], width[2], width10[2], threshold, z
 
         def signal_analysis(self, cell_id, gcamp, rcamp, rawG, rawR, HZ, power, fc, std_thresh):
             str_index = int(cell_id.find("Iono_"))
             threshold_cuttoff = (int(cell_id[(str_index+5):(str_index+8)])*HZ)
-            gcamp_peaks, gcamp_widths, gcamp_widths10, gThreshold, gLowPass = peakDetect(gcamp, threshold_cuttoff, power, fc, std_thresh)
-            rcamp_peaks, rcamp_widths, rcamp_widths10, rThreshold, rLowPass = peakDetect(rcamp, threshold_cuttoff, power, fc, std_thresh)
+            gcamp_peaks, gcamp_widths, gcampleft_ips, gcamp_widths10, gThreshold, gLowPass = peakDetect(gcamp, threshold_cuttoff, power, fc, std_thresh)
+            rcamp_peaks, rcamp_widths, rcampleft_ips, rcamp_widths10, rThreshold, rLowPass = peakDetect(rcamp, threshold_cuttoff, power, fc, std_thresh)
 
 
             drug_app = np.nan
@@ -340,11 +340,13 @@ class cell():
                         cutoffR = np.min(cutoffR)
 
                     gcamp_peaks = gcamp_peaks[:cutoffG]
+                    gcampleft_ips = gcampleft_ips[:cutoffG]
+
                     gcamp_widths = gcamp_widths[:cutoffG]
                     gcamp_widths10 = gcamp_widths10[:cutoffG]
                     rcamp_peaks = rcamp_peaks[:cutoffR]
                     rcamp_widths10 = rcamp_widths10[:cutoffR]
-
+                    rcampleft_ips = rcampleft_ips[:cutoffR]
 
             if cell_id.find("_S") is not -1:
                 if drug_app is not np.nan:
@@ -424,10 +426,10 @@ class cell():
 
                 # Integrate Under the Curve for Area
                 # Note: Area from start to peak
-                g_event_start = int(event[0]-gcamp_widths[gindex])
+                g_event_start = int(event[0]-(gcampleft_ips[gindex]))
                 if g_event_start < 0:
                     g_event_start = 0
-                r_event_start = int(event[0]-rcamp_widths[rindex])
+                r_event_start = int(event[0]-(rcampleft_ips[rindex]))
                 if r_event_start < 0:
                     r_event_start = 0
 
@@ -439,20 +441,20 @@ class cell():
                     r_area = r_area[-1]
 
                 peak_stats = {          'Cell ID': cell_id,
-                                        'GCaMP Loc':event[0],
-                                        'GCaMP Start': event[0]-gcamp_widths[gindex][0]*HZ,
-                                        'GCaMP Width':gcamp_widths[gindex][0],
+                                        'GCaMP Loc (Frame)':event[0],
+                                        'GCaMP Start': (event[0]-gcampleft_ips[gindex][0])*HZ,
+                                        'GCaMP Width':gcamp_widths[gindex][0]*(1/HZ),
                                         'GCaMP Prominence':gcamp[event[0]],
                                         'GCaMP Area':g_area,
-                                        'RCaMP Loc':event[1],
-                                        'RCaMP Start': event[1]-rcamp_widths[rindex][0]*HZ,
-                                        'RCaMP Width':rcamp_widths[rindex][0],
+                                        'RCaMP Loc (Frame)':event[1],
+                                        'RCaMP Start': (event[1]-rcampleft_ips[rindex][0])*HZ,
+                                        'RCaMP Width':rcamp_widths[rindex][0]*(1/HZ),
                                         'RCaMP Prominence':rcamp[event[1]],
                                         'RCaMP Area':r_area,
                                         'Promicence Ratio (G/R)':(gcamp[event[1]]/rcamp[event[0]]),
-                                        'Peak Time Diff (G-R)':((event[0]-event[1])*100),
-                                        'Start Difference (G-R)': (event[0]-gcamp_widths[gindex] - event[1]-rcamp_widths[rindex])[0]*100,
-                                        'Start Difference 10% Max(G-R)': (event[0]-gcamp_widths10[gindex] - event[1]-rcamp_widths10[rindex])[0]*100
+                                        'Peak Time Diff (G-R)':((event[0]-event[1])*(1/HZ)),
+                                        'Start Difference (G-R) Seconds': ((event[0]-(gcampleft_ips[gindex])) - (event[1]-(rcampleft_ips[rindex])))[0]*(1/HZ),
+                                        'Start Difference 10% Max(G-R) Seconds': ((event[0]-(gcamp_widths10[gindex])) - (event[1]-(rcamp_widths10[rindex])))[0]*(1/HZ)
 
 
                                                                          }
