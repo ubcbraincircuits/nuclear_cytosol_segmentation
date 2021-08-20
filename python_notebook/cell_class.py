@@ -394,6 +394,12 @@ class cell():
                 r_percent_shared = np.nan
                 g_percent_shared = np.nan
 
+            # Integrate the area under each Traces
+            int_rcamp = integrate.cumtrapz(rcamp[:drug_app])
+            int_gcamp = integrate.cumtrapz(gcamp[:drug_app])
+            post_int_rcamp = integrate.cumtrapz(rcamp[drug_app:])
+            post_int_gcamp = integrate.cumtrapz(gcamp[drug_app:])
+
             # General Stats for the cell
             cell_stats = {
                                         'Cell ID': cell_id,
@@ -410,6 +416,10 @@ class cell():
                                         'Iono RCaMP Max': iono_max[1],
                                         'Iono RCaMP Min': iono_min[1],
                                         'Iono RCaMP Dif': iono_diff[1],
+                                        'RCaMP Total Area Pre Iono':int_rcamp[-1],
+                                        'GCaMP Total Area Pre Iono': int_gcamp[-1],
+                                        'RCaMP Total Area Post Iono': post_int_rcamp[-1],
+                                        'GCaMP Total Area Post Iono': post_int_gcamp[-1]
 
 
                                        }
